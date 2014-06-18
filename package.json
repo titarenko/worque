@@ -1,0 +1,32 @@
+{
+  "name": "worque",
+  "version": "0.1.0",
+  "description": "AMQP-based work queue (exclusive, durable, consistent, reliable).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:titarenko/worque.git"
+  },
+  "keywords": [
+    "work",
+    "queue",
+    "amqp",
+    "exclusive",
+    "durable",
+    "consistent",
+    "reliable"
+  ],
+  "author": "Constantin Titarenko",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/titarenko/worque/issues"
+  },
+  "homepage": "https://github.com/titarenko/worque",
+  "dependencies": {
+    "amqp": "^0.2.0",
+    "q": "^1.0.1"
+  }
+}
