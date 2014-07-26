@@ -1,4 +1,4 @@
-# Worque
+# worque
 
 AMQP-based work queue:
 
@@ -7,13 +7,13 @@ AMQP-based work queue:
 * consistent - when consumer dies during task execution, it (task) will be sent to another consumer
 * reliable - tested in production environment
 
-## createProducer(name)
+## publish(name, message)
 
-Promises producer object which has single method `publish(task)`.
+Promises message publishing using named channel.
 
-## createConsumer(name)
+## subscribes(name, handler)
 
-Promises consumer object for producer with given `name`. Consumer has single method `subscribe(handler)`.
+Promises subscription on messages of named channel. Function `handler` must have signature `fn(message, ack)`, where `ack` is function which should be called after successful handling of `message`.
 
 # License
 
