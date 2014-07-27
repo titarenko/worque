@@ -1,17 +1,16 @@
 # worque
 
-AMQP-based work queue:
+AMQP-based work queue with following features:
 
-* exclusive - one task is processed by one worker (no broadcast, this is not event queue)
-* durable - when there is no consumer, task will not disappear, but wait for first available consumer
-* consistent - when consumer dies during task execution, it (task) will be sent to another consumer
-* reliable - tested in production environment
+* one task is processed by one worker (no broadcast, this is not event queue)
+* when there is no consumer, task will not disappear, but wait for first available consumer
+* when consumer dies during task execution, it (task) will be sent to another consumer
 
 ## publish(name, message)
 
 Promises message publishing using named channel.
 
-## subscribes(name, handler)
+## subscribe(name, handler)
 
 Promises subscription on messages of named channel. Function `handler` must have signature `fn(message, ack)`, where `ack` is function which should be called after successful handling of `message`.
 
