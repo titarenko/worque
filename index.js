@@ -1,10 +1,14 @@
 var amqp = require('amqp');
 var Q = require('q');
 
-var connection, queues = {};
+function Client (config) {
+	this.config = config;
+	this.connection = null;
+	this.queues = {};
+}
 
-function getConnection () {
-	if (connection) {
+Client.prototype.getConnection = function () {
+	if (this.connection) {
 		return Q(connection);
 	}
 
@@ -19,14 +23,14 @@ function getConnection () {
 	});
 	
 	return result.promise;
-}
+};
 
-function getQueue (name) {
-	if (queues[name]) {
-		return Q(queues[name]);
+Client.prototype.getQueue = function (name) {
+	if (this.queues[name]) {
+		return Q(this.queues[name]);
 	}
 	
-	return getConnection().then(function (c) {
+	return this.getConnection().then(function (c) {
 		var result = Q.defer();
 		
 		c.queue(name, {
@@ -39,25 +43,25 @@ function getQueue (name) {
 		
 		return result.promise;
 	});
-}
+};
 
-function publish (name, message) {
+Client.prototype.publish = function (queueName, message) {
 	try {
 		message = JSON.stringify(message);
 	} catch (e) {
 		message = message.toString();
 	}
 
-	return getConnection().then(function (c) {
-		connection.publish(name, message, {
+	return this.getConnection().then(function (c) {
+		return c.publish(name, message, {
 			deliveryMode: 2
 		});
 	});
-}
+};
 
-function subscribe (name, handler) {
+Client.prototype.subscribe = function (queueName, handler) {
 	return getQueue(name).then(function (q) {
-		q.subscribe({
+		return q.subscribe({
 			ack: true,
 			prefetchCount: 1
 		}, function (message) {
@@ -71,9 +75,6 @@ function subscribe (name, handler) {
 			});
 		});
 	});
-}
-
-module.exports = {
-	publish: publish,
-	subscribe: subscribe
 };
+
+module.exports = Client;
