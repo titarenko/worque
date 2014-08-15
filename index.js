@@ -9,12 +9,12 @@ function Client (config) {
 
 Client.prototype.getConnection = function () {
 	if (this.connection) {
-		return Q(connection);
+		return Q(this.connection);
 	}
 
 	var result = Q.defer();
 	
-	var c = amqp.createConnection();
+	var c = amqp.createConnection(this.config);
 	c.on('ready', function () {
 		result.resolve(c);
 	});
@@ -26,6 +26,8 @@ Client.prototype.getConnection = function () {
 };
 
 Client.prototype.getQueue = function (name) {
+	var self = this;
+
 	if (this.queues[name]) {
 		return Q(this.queues[name]);
 	}
@@ -37,7 +39,7 @@ Client.prototype.getQueue = function (name) {
 			autoDelete: false,
 			durable: true
 		}, function (q) {
-			queues[name] = q;
+			self.queues[name] = q;
 			result.resolve(q);
 		});
 		
@@ -45,7 +47,7 @@ Client.prototype.getQueue = function (name) {
 	});
 };
 
-Client.prototype.publish = function (queueName, message) {
+Client.prototype.publish = function (name, message) {
 	try {
 		message = JSON.stringify(message);
 	} catch (e) {
@@ -59,8 +61,8 @@ Client.prototype.publish = function (queueName, message) {
 	});
 };
 
-Client.prototype.subscribe = function (queueName, handler) {
-	return getQueue(name).then(function (q) {
+Client.prototype.subscribe = function (name, handler) {
+	return this.getQueue(name).then(function (q) {
 		return q.subscribe({
 			ack: true,
 			prefetchCount: 1
@@ -77,4 +79,6 @@ Client.prototype.subscribe = function (queueName, handler) {
 	});
 };
 
-module.exports = Client;
+module.exports = {
+	Client: Client
+};
