@@ -10,7 +10,7 @@ var worque = require('worque');
 var client = new worque.Client({
 	host: 'localhost',
 	port: 5672,
-	user: 'guest',
+	login: 'guest',
 	password: 'guest',
 	vhost: '/'
 });
