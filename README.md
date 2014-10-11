@@ -1,6 +1,6 @@
 # worque
 
-AMQP-based work queue: one message per worker, rescheduling on unexpected disconnect of worker, durability of queue.
+AMQP-based work queue: one (by default, but configurable) message per worker, rescheduling on unexpected disconnect of worker, durability of queue.
 
 # Example
 
@@ -40,9 +40,9 @@ Constructs queue client using provided `config` (see example for list of its pro
 
 Promises message publishing using named channel.
 
-## Client::subscribe(name, handler)
+## Client::subscribe(name, [concurrency,] handler)
 
-Promises subscription on messages of named channel. Function `handler` must have signature `fn(message, ack)`, where `ack` is function which should be called after successful handling of `message`.
+Promises subscription on messages of named channel. Function `handler` must have signature `fn(message, ack)`, where `ack` is function which should be called after successful handling of `message`. `Concurrency` specifies how much messages can be sent to single client at once, default is 1.
 
 # License
 

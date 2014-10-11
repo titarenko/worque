@@ -61,11 +61,15 @@ Client.prototype.publish = function (name, message) {
 	});
 };
 
-Client.prototype.subscribe = function (name, handler) {
+Client.prototype.subscribe = function (name, prefetchCount, handler) {
+	if (!handler) {
+		handler = prefetchCount;
+		prefetchCount = 1;
+	}
 	return this.getQueue(name).then(function (q) {
 		return q.subscribe({
 			ack: true,
-			prefetchCount: 1
+			prefetchCount: prefetchCount
 		}, function (message) {
 			message = message.data.toString('utf-8');
 			try {
