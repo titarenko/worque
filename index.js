@@ -17,6 +17,7 @@ Client.prototype.getConnection = function () {
 	var result = Q.defer();
 	
 	var c = amqp.createConnection(this.config);
+	
 	c.on('ready', function () {
 		if (self.connection) {
 			c.disconnect();
@@ -25,9 +26,15 @@ Client.prototype.getConnection = function () {
 		}
 		result.resolve(self.connection);
 	});
+
 	c.on('error', function (error) {
-		self.connection = null;
-		result.reject(error);
+		if (self.connection == c) {
+			self.connection = null;
+			result.reject(error);
+		} else {
+			// todo: decide what to do with `c` and `error`
+			result.resolve(self.connection);
+		}
 	});
 	
 	return result.promise;
