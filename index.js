@@ -3,41 +3,29 @@ var Q = require('q');
 
 function Client (config) {
 	this.config = config;
-	this.connection = null;
+	this.connectionPromise = null;
 	this.queues = {};
 }
 
 Client.prototype.getConnection = function () {
-	var self = this;
-
-	if (this.connection) {
-		return Q(this.connection);
+	if (this.connectionPromise) {
+		return this.connectionPromise;
 	}
 
 	var result = Q.defer();
+	this.connectionPromise = result.promise;
 	
 	var c = amqp.createConnection(this.config);
 	
 	c.on('ready', function () {
-		if (self.connection) {
-			c.disconnect();
-		} else {
-			self.connection = c;
-		}
-		result.resolve(self.connection);
+		result.resolve(c);
 	});
 
 	c.on('error', function (error) {
-		if (self.connection == c) {
-			self.connection = null;
-			result.reject(error);
-		} else {
-			// todo: decide what to do with `c` and `error`
-			result.resolve(self.connection);
-		}
+		result.reject(error);
 	});
 	
-	return result.promise;
+	return this.connectionPromise;
 };
 
 Client.prototype.getQueue = function (name) {
