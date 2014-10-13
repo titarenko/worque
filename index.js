@@ -8,6 +8,8 @@ function Client (config) {
 }
 
 Client.prototype.getConnection = function () {
+	var self = this;
+
 	if (this.connection) {
 		return Q(this.connection);
 	}
@@ -16,9 +18,15 @@ Client.prototype.getConnection = function () {
 	
 	var c = amqp.createConnection(this.config);
 	c.on('ready', function () {
-		result.resolve(c);
+		if (self.connection) {
+			c.disconnect();
+		} else {
+			self.connection = c;
+		}
+		result.resolve(self.connection);
 	});
 	c.on('error', function (error) {
+		self.connection = null;
 		result.reject(error);
 	});
 	
