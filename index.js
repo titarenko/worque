@@ -4,7 +4,7 @@ var Q = require('q');
 function Client (config) {
 	this.config = config;
 	this.connectionPromise = null;
-	this.queues = {};
+	this.queuePromises = {};
 }
 
 Client.prototype.getConnection = function () {
@@ -31,18 +31,17 @@ Client.prototype.getConnection = function () {
 Client.prototype.getQueue = function (name) {
 	var self = this;
 
-	if (this.queues[name]) {
-		return Q(this.queues[name]);
+	if (this.queuePromises[name]) {
+		return this.queuePromises[name];
 	}
-	
-	return this.getConnection().then(function (c) {
+
+	return this.queuePromises[name] = this.getConnection().then(function (c) {
 		var result = Q.defer();
 		
 		c.queue(name, {
 			autoDelete: false,
 			durable: true
 		}, function (q) {
-			self.queues[name] = q;
 			result.resolve(q);
 		});
 		
@@ -57,7 +56,7 @@ Client.prototype.publish = function (name, message) {
 		message = message.toString();
 	}
 
-	return this.getConnection().then(function (c) {
+	return Q.spread([this.getConnection(), this.getQueue(name)], function (c) {
 		return c.publish(name, message, {
 			deliveryMode: 2
 		});
