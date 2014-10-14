@@ -50,6 +50,8 @@ Client.prototype.getQueue = function (name) {
 };
 
 Client.prototype.publish = function (name, message) {
+	message = message || null;
+	
 	try {
 		message = JSON.stringify(message);
 	} catch (e) {
