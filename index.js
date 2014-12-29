@@ -70,18 +70,22 @@ Client.prototype.subscribe = function (name, prefetchCount, handler) {
 		handler = prefetchCount;
 		prefetchCount = 1;
 	}
-	return this.getQueue(name).then(function (q) {
+	return this.getQueue(name).then(function doSubscribe (q) {
 		return q.subscribe({
 			ack: true,
 			prefetchCount: prefetchCount
-		}, function (message) {
+		}, function doHandle (message, headers, deliveryInfo, ack) {
 			message = message.data.toString('utf-8');
 			try {
 				message = JSON.parse(message);
 			} catch (e) {
 			}
-			handler(message, function () {
-				q.shift();
+			handler(message, function doAck () {
+				if (prefetchCount === 1) {
+					q.shift();
+				} else {
+					ack.acknowledge();
+				}
 			});
 		});
 	});
