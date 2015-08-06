@@ -2,6 +2,10 @@
 
 AMQP-based work queue: one message per worker (by default, but configurable), restarting on unexpected disconnect of worker (task will not be lost, if worker was aborted due to exception), durability of queue.
 
+[![Build Status](https://secure.travis-ci.org/titarenko/worque.png?branch=master)](https://travis-ci.org/titarenko/worque) [![Coverage Status](https://coveralls.io/repos/titarenko/worque/badge.png)](https://coveralls.io/r/titarenko/worque)
+
+[![NPM](https://nodei.co/npm/worque.png?downloads=true&stars=true)](https://nodei.co/npm/worque/)
+
 # Example
 
 ```js
