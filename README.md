@@ -1,6 +1,6 @@
 # worque
 
-AMQP-based work queue: one (by default, but configurable) message per worker, rescheduling on unexpected disconnect of worker, durability of queue.
+AMQP-based work queue: one message per worker (by default, but configurable), restarting on unexpected disconnect of worker (task will not be lost, if worker was aborted due to exception), durability of queue.
 
 # Example
 
@@ -34,7 +34,7 @@ client.publish('message-c', {
 
 ## Client(config)
 
-Constructs queue client using provided `config` (see example for list of its properties).
+Constructs queue client using provided `config` (see example for list of properties).
 
 ## Client::publish(name, message)
 
@@ -46,4 +46,4 @@ Promises subscription on messages of named channel. Function `handler` must have
 
 # License
 
-BSD
+MIT
