@@ -3,7 +3,9 @@
   "version": "0.4.7",
   "description": "AMQP-based work queue: simple and reliable.",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "istanbul cover node_modules/mocha/bin/_mocha -- tests && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:titarenko/worque.git"
@@ -25,5 +27,11 @@
   "dependencies": {
     "amqp": "^0.2.0",
     "bluebird": "^2.9.34"
+  },
+  "devDependencies": {
+    "coveralls": "^2.11.3",
+    "istanbul": "^0.3.17",
+    "mocha": "^2.2.5",
+    "should": "^7.0.2"
   }
 }

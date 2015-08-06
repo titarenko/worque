@@ -23,7 +23,7 @@ Client.prototype.getQueue = function (name) {
 				durable: true
 			}, function (q) { resolve(q); });
 		});
-	});
+	}));
 };
 
 Client.prototype.publish = function (name, message) {
@@ -35,7 +35,7 @@ Client.prototype.publish = function (name, message) {
 		message = message.toString();
 	}
 
-	return Promise.spread([this.getConnection(), this.getQueue(name)], function (c) {
+	return Promise.all([this.getConnection(), this.getQueue(name)]).spread(function (c) {
 		return c.publish(name, message, { deliveryMode: 2 });
 	});
 };
