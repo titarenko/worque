@@ -54,7 +54,8 @@ Client.prototype.subscribe = function (name, prefetchCount, handler) {
 				message = JSON.parse(message);
 			} catch (e) {
 			}
-			handler(message, function (reject) {
+			handler(message, function (error) {
+				var reject = !!error;
 				if (prefetchCount === 1) {
 					q.shift(reject, reject);
 				} else {
