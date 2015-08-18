@@ -1,5 +1,6 @@
 var amqp = require('amqp');
 var Promise = require('bluebird');
+
 function Client (config) {
 	this.config = config;
 	this.connectionPromise = null;
