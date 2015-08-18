@@ -8,8 +8,9 @@ function Client (config) {
 }
 
 Client.prototype.getConnection = function () {
+	var self = this;
 	return this.connectionPromise || (this.connectionPromise = new Promise(function (resolve, reject) {
-		var c = amqp.createConnection(this.config);
+		var c = amqp.createConnection(self.config);
 		c.on('ready', function () { resolve(c); });
 		c.on('error', function (error) { reject(error); });
 	}));
