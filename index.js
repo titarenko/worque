@@ -1,6 +1,5 @@
 var amqp = require('amqp');
 var Promise = require('bluebird');
-
 function Client (config) {
 	this.config = config;
 	this.connectionPromise = null;
@@ -55,9 +54,9 @@ Client.prototype.subscribe = function (name, prefetchCount, handler) {
 				message = JSON.parse(message);
 			} catch (e) {
 			}
-			handler(message, function () {
+			handler(message, function (reject) {
 				if (prefetchCount === 1) {
-					q.shift();
+					q.shift(reject, reject);
 				} else {
 					ack.acknowledge();
 				}
