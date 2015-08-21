@@ -16,18 +16,21 @@ Client.prototype.getConnection = function () {
 	}));
 };
 
-Client.prototype.getQueue = function (name) {
-	return this.queuePromises[name] || (this.queuePromises[name] = this.getConnection().then(function (c) {
-		return new Promise(function (resolve, reject) {
-			c.queue(name, {
-				autoDelete: false,
-				durable: true
-			}, function (q) { resolve(q); });
-		});
-	}));
+Client.prototype.getQueue = function (name, options) {
+	options = options || {
+		autoDelete: false,
+		durable: true
+	};
+	return this.queuePromises[name] || (
+		this.queuePromises[name] = this.getConnection().then(function (c) {
+			return new Promise(function (resolve, reject) {
+				c.queue(name, options, function (q) { resolve(q); });
+			});
+		})
+	);
 };
 
-Client.prototype.publish = function (name, message) {
+Client.prototype.publish = function (name, message, options) {
 	message = message || null;
 	
 	try {
@@ -37,7 +40,7 @@ Client.prototype.publish = function (name, message) {
 	}
 
 	return Promise.all([this.getConnection(), this.getQueue(name)]).spread(function (c) {
-		return c.publish(name, message, { deliveryMode: 2 });
+		return c.publish(name, message, options || { deliveryMode: 2 });
 	});
 };
 
@@ -46,11 +49,15 @@ Client.prototype.subscribe = function (name, prefetchCount, handler) {
 		handler = prefetchCount;
 		prefetchCount = 1;
 	}
-	return this.getQueue(name).then(function (q) {
-		return q.subscribe({
-			ack: true,
-			prefetchCount: prefetchCount
-		}, function (message, headers, deliveryInfo, ack) {
+	var options = {
+		ack: true,
+		prefetchCount: prefetchCount
+	};
+	if (!(+prefetchCount === prefetchCount)) {
+		options = prefetchCount;
+	}
+	return this.getQueue(name, options.queue).then(function (q) {
+		return q.subscribe(options, function (message, headers, deliveryInfo, ack) {
 			message = message.data.toString('utf-8');
 			try {
 				message = JSON.parse(message);
@@ -58,7 +65,7 @@ Client.prototype.subscribe = function (name, prefetchCount, handler) {
 			}
 			handler(message, function (error) {
 				var reject = !!error;
-				if (prefetchCount === 1) {
+				if (options.prefetchCount === 1) {
 					q.shift(reject, reject);
 				} else {
 					ack.acknowledge();
