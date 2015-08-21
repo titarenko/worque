@@ -42,11 +42,21 @@ Constructs queue client using provided `config` (see example for list of propert
 
 ## Client::publish(name, message[, options])
 
-Promises message publishing using named channel. You could optionally provide any amqp-options which will be passed to native [method](https://github.com/postwait/node-amqp#connectionpublishroutingkey-body-options-callback).
+Promises message publishing using named channel.
+
+You could optionally provide any amqp-options which will be passed to native [method](https://github.com/postwait/node-amqp#connectionpublishroutingkey-body-options-callback).
+
+Also using `options.queue` property you can specify any amqp-options for [method](https://github.com/postwait/node-amqp#connectionqueuename-options-opencallback) which does obtain queue before message gets published to it).
 
 ## Client::subscribe(name, [concurrencyOrOptions,] handler)
 
-Promises subscription on messages of named channel. Function `handler` must have signature `fn(message, ack)`, where `ack` is function which should be called after successful handling of `message`. Argument `concurrencyOrOptions` specifies either how much messages can be sent to single client at once (default is 1) or provides ability to specify amqp-options which will be passed to native [method](https://github.com/postwait/node-amqp#queuesubscribeoptions-listener) (also, using `concurrencyOrOptions.queue` property you can specify any amqp-options for [method](https://github.com/postwait/node-amqp#connectionqueuename-options-opencallback) which does obtain queue before message gets published to it).
+Promises subscription on messages of named channel.
+
+Function `handler` must have signature `fn(message, ack)`, where `ack` is function which should be called after successful handling of `message`. 
+
+Argument `concurrencyOrOptions` specifies either how much messages can be sent to single client at once (default is 1) or provides ability to specify amqp-options which will be passed to native [method](https://github.com/postwait/node-amqp#queuesubscribeoptions-listener).
+
+Also using `concurrencyOrOptions.queue` property you can specify any amqp-options for [method](https://github.com/postwait/node-amqp#connectionqueuename-options-opencallback) which does obtain queue before message gets published to it).
 
 # License
 

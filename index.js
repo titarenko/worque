@@ -39,7 +39,7 @@ Client.prototype.publish = function (name, message, options) {
 		message = message.toString();
 	}
 
-	return Promise.all([this.getConnection(), this.getQueue(name)]).spread(function (c) {
+	return Promise.all([this.getConnection(), this.getQueue(name, options && options.queue)]).spread(function (c) {
 		return c.publish(name, message, options || { deliveryMode: 2 });
 	});
 };
