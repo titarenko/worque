@@ -58,7 +58,7 @@ Client.prototype.subscribe = function (name, prefetchCount, handler) {
 	}
 	return this.getQueue(name, options.queue).then(function (q) {
 		return q.subscribe(options, function (message, headers, deliveryInfo, ack) {
-			message = message.data.toString('utf-8');
+			message = message && message.data && message.data.toString('utf-8') || message;
 			try {
 				message = JSON.parse(message);
 			} catch (e) {
