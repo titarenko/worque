@@ -6,8 +6,8 @@ module.exports = build;
 
 function build (config) {
 	return {
-		publish: publishEvent,
-		subscribe: listenForEvent
+		publish: publish,
+		subscribe: subscribe
 	};
 
 	var getChannel = memoizee(createChannel);
