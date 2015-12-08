@@ -8,7 +8,8 @@ describe('worque', function () {
 		client.subscribe('q1', function (p) {
 			p.should.eql(1);
 			done();
-		});
-		client.publish('q1', 1);
+		}).then(function () {
+			return client.publish('q1', 1);
+		}).catch(done);
 	});
 });

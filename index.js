@@ -5,12 +5,12 @@ var Promise = require('bluebird');
 module.exports = build;
 
 function build (config) {
+	var getChannel = memoizee(createChannel);
+
 	return {
 		publish: publish,
 		subscribe: subscribe
 	};
-
-	var getChannel = memoizee(createChannel);
 
 	function publish (queueName, message, context) {
 		return getChannel(config.url).then(assertQueue(queueName)).then(function (channel) {
@@ -45,15 +45,23 @@ function build (config) {
 				}).tap(function () {
 					return channel.ack(message);
 				}).catch(function (error) {
-					return channel.nack(message).throw(error);
+					var nackResult = channel.nack(message);
+					return Promise.resolve(nackResult).throw(error);
 				});
 			});
 		});
 	}
+}
 
-	function assertQueue (queueName) {
-		return function (channel) {
-			return channel.assertQueue(queueName, { durable: true }).return(channel);
-		};
-	}
+function createChannel (url) {
+	return amqplib.connect(url).then(function (connection) {
+		return connection.createChannel();
+	});
+}
+
+function assertQueue (queueName) {
+	return function (channel) {
+		var assertionResult = channel.assertQueue(queueName, { durable: true });
+		return Promise.resolve(assertionResult).return(channel);
+	};
 }
