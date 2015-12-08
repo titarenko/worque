@@ -1,6 +1,6 @@
 {
   "name": "worque",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "AMQP-based work queue: simple and reliable.",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,10 @@
     "amqp",
     "exclusive",
     "durable",
-    "reliable"
+    "reliable",
+    "rabbitmq",
+    "promise",
+    "bluebird"
   ],
   "author": "Constantin Titarenko",
   "license": "MIT",
@@ -25,8 +28,9 @@
   },
   "homepage": "https://github.com/titarenko/worque",
   "dependencies": {
-    "amqp": "^0.2.0",
-    "bluebird": "^2.9.34"
+    "amqplib": "^0.4.0",
+    "bluebird": "^2.9.34",
+    "memoizee": "^0.3.9"
   },
   "devDependencies": {
     "coveralls": "^2.11.3",

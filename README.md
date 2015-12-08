@@ -1,62 +1,59 @@
 # worque
 
-AMQP-based work queue: one message per worker (by default, but configurable), restarting on unexpected disconnect of worker (task will not be lost, if worker was aborted due to exception), durability of queue.
+AMQP-based work queue: one message per worker, restarting on unexpected disconnect of worker (task will not be lost, if worker was aborted due to exception), durability of queue (queue survives broken restarts).
 
 [![Build Status](https://secure.travis-ci.org/titarenko/worque.png?branch=master)](https://travis-ci.org/titarenko/worque) [![Coverage Status](https://coveralls.io/repos/titarenko/worque/badge.png)](https://coveralls.io/r/titarenko/worque)
 
 [![NPM](https://nodei.co/npm/worque.png?downloads=true&stars=true)](https://nodei.co/npm/worque/)
+
+# Migration
+
+## [v0.5](https://github.com/titarenko/worque/tree/39fcfdd1605211916f4e1c0e46786f530d69127c) -> v0.6 (current)
+
+- There is no more `Client` class. Library exposes function-builder which returns object with methods `publish` and `subscribe`.
+- Do not expect `ack` as a second argument in your handler. Simpy return promise whithout throwing an error (or provide custom `errorHandler`) and message will be acked (otherwise, nacked).
 
 # Example
 
 ```js
 var worque = require('worque');
 
-var client = new worque.Client({
-	host: 'localhost',
-	port: 5672,
-	login: 'guest',
-	password: 'guest',
-	vhost: '/'
-});
+var client = worque({ url: 'amqp://myuser:mypassword@localhost/my-virtual-host' });
 
-client.subscribe('message-a', function (message, ack) {
+client.subscribe('logthis', function (message) {
 	console.log(message);
-
-	client.publish('message-b', {
-		data: 'value'
-	});
-
-	ack();
 });
 
-client.publish('message-c', {
+client.publish('logthis', {
 	something: 42
 });
 ```
 
-# API
+Complete configuration example:
 
-## Client(config)
+```js
+var client = worque({
+	url: 'amqp://myuser:mypassword@localhost/my-virtual-host',
+	preserveContext: true,
+	before: function (queueName, message) {
+		console.log('%s subscriber is about to be invoked with message %j, context (this) is %j', queueName, message, this);
+	},
+	after: function (queueName, message, result) {
+		console.log('%s subscriber ended successfully with result %j (message was %j, context (this) was %j)', queueName, result, message, this);
+	},
+	handleError: function (queueName, message, error) {
+		console.log('%s (%j) failed with %s', queueName, message, error.stack);
+	}
+});
 
-Constructs queue client using provided `config` (see example for list of properties).
+client.subscribe('task', function (params) {
+	task.onBehalfOf(this.user).execute(params);
+});
 
-## Client::publish(name, message[, options])
+client.publish.call(this, { a: 10, b: 'str' });
+```
 
-Promises message publishing using named channel.
-
-You could optionally provide any amqp-options which will be passed to native [method](https://github.com/postwait/node-amqp#connectionpublishroutingkey-body-options-callback).
-
-Also using `options.queue` property you can specify any amqp-options for [method](https://github.com/postwait/node-amqp#connectionqueuename-options-opencallback) which does obtain queue before message gets published to it).
-
-## Client::subscribe(name, [concurrencyOrOptions,] handler)
-
-Promises subscription on messages of named channel.
-
-Function `handler` must have signature `fn(message, ack)`, where `ack` is function which should be called after successful handling of `message`. 
-
-Argument `concurrencyOrOptions` specifies either how much messages can be sent to single client at once (default is 1) or provides ability to specify amqp-options which will be passed to native [method](https://github.com/postwait/node-amqp#queuesubscribeoptions-listener).
-
-Also using `concurrencyOrOptions.queue` property you can specify any amqp-options for [method](https://github.com/postwait/node-amqp#connectionqueuename-options-opencallback) which does obtain queue before message gets published to it).
+Yes, it allows you to pass arbitrary context (`this`) when `preserveContext` is `true`.
 
 # License
 
