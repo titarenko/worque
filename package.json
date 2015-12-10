@@ -1,10 +1,10 @@
 {
   "name": "worque",
-  "version": "0.6.0",
-  "description": "AMQP-based work queue: simple and reliable.",
+  "version": "0.6.1",
+  "description": "AMQP-based work queue: simple and reliable",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover node_modules/mocha/bin/_mocha -- tests && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "test": "node node_modules/istanbul/lib/cli cover node_modules/mocha/bin/_mocha -- tests && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "repository": {
     "type": "git",
@@ -14,7 +14,6 @@
     "work",
     "queue",
     "amqp",
-    "exclusive",
     "durable",
     "reliable",
     "rabbitmq",
@@ -29,12 +28,13 @@
   "homepage": "https://github.com/titarenko/worque",
   "dependencies": {
     "amqplib": "^0.4.0",
-    "bluebird": "^2.9.34",
+    "bluebird": "^2.10.2",
+    "lodash": "^3.10.1",
     "memoizee": "^0.3.9"
   },
   "devDependencies": {
     "coveralls": "^2.11.3",
-    "istanbul": "^0.3.17",
+    "istanbul": "^0.4.1",
     "mocha": "^2.2.5",
     "should": "^7.0.2"
   }
