@@ -5,6 +5,7 @@ var Promise = require('bluebird');
 var _ = require('lodash');
 var amqplib = require('amqplib');
 var memoizee = require('memoizee');
+var CronJob = require('cron').CronJob;
 
 module.exports = build;
 
@@ -21,7 +22,8 @@ function build (options) {
 
 	var api = _.extend(emitter, {
 		publish: publish,
-		subscribe: subscribe
+		subscribe: subscribe,
+		schedule: schedule
 	});
 
 	return api;
@@ -37,6 +39,14 @@ function build (options) {
 		return getSubscriber(queueName).then(function (subscriber) {
 			return subscriber(handler);
 		});
+	}
+
+	function schedule (cronTime, name, handler, timeZone) {
+		new CronJob(cronTime, trigger, null, true, timeZone);
+		return subscribe(name, handler);
+		function trigger () {
+			publish(name);
+		}
 	}
 }
 
