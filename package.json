@@ -1,7 +1,7 @@
 {
   "name": "worque",
-  "version": "0.6.1",
-  "description": "AMQP-based work queue: simple and reliable",
+  "version": "0.6.2",
+  "description": "AMQP-based work queue",
   "main": "index.js",
   "scripts": {
     "test": "node node_modules/istanbul/lib/cli cover node_modules/mocha/bin/_mocha -- tests && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
@@ -12,11 +12,12 @@
   },
   "keywords": [
     "work",
+    "task",
     "queue",
     "amqp",
-    "durable",
-    "reliable",
     "rabbitmq",
+    "durable",
+    "persistent",
     "promise",
     "bluebird"
   ],

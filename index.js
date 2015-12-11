@@ -27,7 +27,7 @@ function build (options) {
 	return api;
 
 	function publish (queueName, message, context) {
-		var content = { context: api === this ? context : this || context, message: message };
+		var content = { context: api === this ? context : context || this, message: message };
 		return getPublisher(queueName).then(function (publisher) {
 			return publisher(content);
 		});
@@ -57,7 +57,8 @@ function createSubscriber (config, queueName) {
 				return Promise.resolve().tap(function () {
 					config.emitter.emit('task', {
 						task: queueName,
-						data: content.message
+						data: content.message,
+						context: content.context
 					});
 				}).then(function () {
 					return handler.call(content.context, content.message);
@@ -65,12 +66,14 @@ function createSubscriber (config, queueName) {
 					config.emitter.emit('result', {
 						task: queueName,
 						data: content.message,
+						context: content.context,
 						result: result
 					});
 				}).catch(function (error) {
 					config.emitter.emit('error', {
 						task: queueName,
 						data: content.message,
+						context: content.context,
 						error: error
 					});
 				}).finally(function () {
