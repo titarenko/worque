@@ -41,11 +41,18 @@ function build (options) {
 		});
 	}
 
-	function schedule (cronTime, name, handler, timeZone) {
+	function schedule (cronTime, name, handler, params, timeZone) {
+		if (_.isObject(cronTime)) {
+			timeZone = cronTime.timeZone;
+			params = cronTime.params;
+			handler = cronTime.handler;
+			name = cronTime.name;
+			cronTime = cronTime.cronTime;
+		}
 		new CronJob(cronTime, trigger, null, true, timeZone);
 		return subscribe(name, handler);
 		function trigger () {
-			publish(name);
+			publish(name, params);
 		}
 	}
 }
