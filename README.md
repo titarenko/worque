@@ -21,6 +21,7 @@ Publishing message = loading single worker with task.
 - simple project bootstrap
 - task survives broker restarts
 - task waits for worker (handler) if it's offline
+- task can be scheduled (cron)
 
 ## Example
 
