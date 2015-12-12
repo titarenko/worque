@@ -36,6 +36,10 @@ client.subscribe('logthis', function (message) {
 });
 
 client.publish('logthis', { something: 42 });
+
+client.schedule('0 * * * * *', 'recurrent task runs each minute', function () {
+	console.log('I run each minute');
+});
 ```
 
 ## License
