@@ -4,6 +4,7 @@ var EventEmitter = require('events').EventEmitter;
 var memoizee = require('memoizee');
 var _ = require('lodash');
 var amqplib = require('amqplib');
+var Promise = require('bluebird');
 var Queue = require('./queue');
 
 module.exports = build;
