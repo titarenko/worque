@@ -21,7 +21,17 @@ describe('worque', function () {
 			if (!count++) {
 				done();
 			}
-		}).schedule('* * * * * *').catch(done);
+		}).schedule('* * *').catch(done);
+	});
+	it('should support scheduling using simplified format', function (done) {
+		var client = worque('amqp://localhost');
+		var count = 0;
+		client.on('error', done);
+		client('recurrent').subscribe(function () {
+			if (!count++) {
+				done();
+			}
+		}).schedule('*:*:*').catch(done);
 	});
 	it('should support retrying', function (done) {
 		var client = worque('amqp://localhost');

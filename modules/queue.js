@@ -76,8 +76,18 @@ Queue.prototype.subscribe = function (handler, options) {
 };
 
 Queue.prototype.schedule = function (cronTime) {
+	if (cronTime.indexOf(':') !== 0) {
+		cronTime = cronTime.split(':').reverse().join(' ');
+	}
+	
+	var padding = 6 - cronTime.split(' ').length;
+	if (padding > 0) {
+		cronTime = cronTime + _.repeat(' *', padding);
+	}
+
 	var args = _.slice(arguments, 1);
 	args[2] = args[2] || { persistent: true, expiration: 1000 };
+	
 	return this._exec(function (channel) {
 		var self = this;
 		new CronJob(cronTime, publish, null, true);
