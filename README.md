@@ -12,7 +12,7 @@ npm i worque --save
 
 ## Description
 
-Each `task` = `queue`. 
+Each `task` = `queue`.
 
 Publishing message = loading single worker with task.
 
@@ -22,25 +22,38 @@ Publishing message = loading single worker with task.
 - task survives broker restarts
 - task waits for worker (handler) if it's offline
 - task can be scheduled (cron)
+- task can be retried with flexible and easy-to-specify retry period configuration
+- fluent and simple API
 
 ## Example
 
 ```js
 var client = require('worque')('amqp://localhost');
 
+// global (all tasks) events
 client.on('task', console.log); // fired before handler
 client.on('result', console.log); // fired after handler
-client.on('error', console.error); // fired if handler fails
+client.on('failure', console.error); // fired if handler fails
 
-client.subscribe('logthis', function (message) {
+// define task 'logthis' and provide handler
+client('logthis').subscribe(function (message) {
 	console.log(message);
 });
 
-client.publish('logthis', { something: 42 });
+// start 'logthis' task with params
+client('logthis').publish({ something: 42 });
 
-client.schedule('0 * * * * *', 'recurrent task runs each minute', function () {
+// setup scheduled task
+client('recurrent task runs each minute').subscribe(function () {
 	console.log('I run each minute');
-});
+}).schedule('0 * * * * *');
+
+// will be retried (republished) 1 second after 1st failure
+// 2 seconds after 2nd failure
+// 3 seconds after 3d failure
+client('retry 3 times if failed').subscribe(function (url) {
+	return doRequestAndSaveToFile(url);
+}).retry(1, 2, 3).publish('http://mysite.com'); 
 ```
 
 ## License

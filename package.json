@@ -1,6 +1,6 @@
 {
   "name": "worque",
-  "version": "0.6.6",
+  "version": "0.9.0",
   "description": "AMQP-based work queue",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,9 @@
     "promise",
     "bluebird",
     "cron",
-    "schedule"
+    "schedule",
+    "retry",
+    "failover"
   ],
   "author": "Constantin Titarenko",
   "license": "MIT",
