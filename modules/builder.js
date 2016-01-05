@@ -22,7 +22,7 @@ function build (url) {
 	
 	function init (queueName) {
 		var instance = new Queue(getChannel, 'worque-buffer', queueName);
-		['task', 'result', 'error'].forEach(wire);
+		['task', 'result', 'failure'].forEach(wire);
 		return instance;
 
 		function wire (eventName) {
