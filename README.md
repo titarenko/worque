@@ -16,6 +16,8 @@ Each `task` = `queue`.
 
 Publishing message = loading single worker with task.
 
+NOTE: one-by-one task processing is guaranteed only with RabbitMQ 3.3 and higher.
+
 ## Motivation
 
 - simple project bootstrap

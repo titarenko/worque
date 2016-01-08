@@ -36,6 +36,9 @@ function build (url) {
 function createChannel (url) {
 	return amqplib.connect(url).then(function (connection) {
 		return connection.createChannel();
+	}).then(function (channel) {
+		channel.prefetch(1);
+		return channel;
 	});
 }
 
