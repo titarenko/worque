@@ -13,10 +13,13 @@ function build (url) {
 	var emitter = new EventEmitter();
 	var getChannel = memoizee(_.partial(createChannel, url));
 
-	getChannel().then(createRetryBuffer);
+	getChannel().then(createRetryBuffer).catch(function (e) {
+		emitter.emit('failure', { error: e });
+	});
 
 	init.on = emitter.on.bind(emitter);
 	init.once = emitter.once.bind(emitter);
+	init.close = _.partial(close, getChannel);
 
 	return init;
 	
@@ -39,6 +42,12 @@ function createChannel (url) {
 	}).then(function (channel) {
 		channel.prefetch(1);
 		return channel;
+	});
+}
+
+function close (getChannel) {
+	return getChannel().then(function (channel) {
+		return channel.connection.close();
 	});
 }
 

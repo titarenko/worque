@@ -1,7 +1,6 @@
 var worque = require('./..');
 var should = require('should');
 
-
 describe('worque', function () {
 	this.timeout(7000);
 	it('should work', function (done) {
@@ -44,5 +43,17 @@ describe('worque', function () {
 			done();
 		}).retry(1, 2, 3).catch(done);
 		client('somewhat failing').publish({ a: 'b' }).catch(done);
+	});
+	it('should support closing connection', function (done) {
+		var client = worque('amqp://localhost');
+		client.close().then(function () {
+			return client('any queue').publish('any message');
+		}).catch(function (e) {
+			if (e.message == 'Channel ended, no reply will be forthcoming') {
+				done();
+			} else {
+				done(e);
+			}
+		});
 	});
 });
