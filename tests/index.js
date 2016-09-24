@@ -1,8 +1,9 @@
 var worque = require('./..');
 var should = require('should');
+var Promise = require('bluebird');
 
 describe('worque', function () {
-	this.timeout(7000);
+	this.timeout(12000);
 	it('should work', function (done) {
 		var client = worque('amqp://localhost');
 		client.on('error', done);
@@ -55,5 +56,25 @@ describe('worque', function () {
 				done(e);
 			}
 		});
+	});
+	it('should remove expired scheduled messages', function (done) {
+		var client = worque('amqp://localhost');
+		var counter = 0;
+		var start;
+		client('scheduled').subscribe(function () {
+			counter += 1;
+			if (counter == 1) {
+				return Promise.delay(3000);
+			} else if (counter == 2) {
+				start = new Date();
+			} else if (counter == 3) {
+				var diff = new Date() - start;
+				if (diff < 1000) {
+					done(new Error('Called after ' + diff + 'ms => earlier than 1000 ms => there were several messages in a queue'));
+				} else {
+					done();
+				}
+			}
+		}).schedule('*:*:*');
 	});
 });
