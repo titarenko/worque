@@ -60,7 +60,13 @@ Queue.prototype.subscribe = function (handler, options) {
 		return channel.consume(this._name, onMessage, options);
 		function onMessage (message) {
 			var rawContent = message.content || new Buffer('{}');
-			var data = JSON.parse(rawContent.toString());
+			var data;
+			try {
+				data = JSON.parse(rawContent.toString());
+			} catch (e) {
+				self.emit('failure', { error: error });
+				channel.ack(message);
+			}
 			self.emit('task', _.extend(data, { name: self._name }));
 			return Promise.resolve().then(function () {
 				return handler.call(data.context, data.content);
