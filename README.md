@@ -55,7 +55,11 @@ client('recurrent task runs each minute').subscribe(function () {
 // 3 seconds after 3d failure
 client('retry 3 times if failed').subscribe(function (url) {
 	return doRequestAndSaveToFile(url);
-}).retry(1, 2, 3).publish('http://mysite.com'); 
+}).retry(1, 2, 3).publish('http://mysite.com');
+
+process.on('SIGINT', function () {
+	client.close();
+});
 ```
 
 ## License

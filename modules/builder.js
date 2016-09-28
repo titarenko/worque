@@ -13,9 +13,16 @@ function build (url) {
 	var emitter = new EventEmitter();
 	var getChannel = memoizee(_.partial(createChannel, url));
 
-	getChannel().then(createRetryBuffer).catch(function (e) {
-		emitter.emit('failure', { error: e });
+	getChannel().then(createRetryBuffer).catch(emitFailure);
+
+	getChannel().then(function (channel) {
+		channel.on('error', emitFailure);
+		channel.connection.on('error', emitFailure);
 	});
+
+	function emitFailure (e) {
+		emitter.emit('failure', { error: e });
+	}
 
 	init.on = emitter.on.bind(emitter);
 	init.once = emitter.once.bind(emitter);
@@ -40,8 +47,9 @@ function createChannel (url) {
 	return amqplib.connect(url).then(function (connection) {
 		return connection.createChannel();
 	}).then(function (channel) {
-		channel.prefetch(1);
-		return channel;
+		return channel.prefetch(1).then(function () {
+			return channel;
+		});
 	});
 }
 
