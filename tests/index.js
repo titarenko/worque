@@ -58,24 +58,46 @@ describe('worque', function () {
 		});
 	});
 	it('should remove expired scheduled messages', function (done) {
+		// correct:
+		// 0ms - 1st message
+		// (u)ms - worker takes 1st message (u is much less than 2000)
+		// 2000ms - 2nd message
+		// 4000ms - 2nd message is expired, 3rd is published
+		// (4000 + u)ms - worker ends with 1st message
+		// (4000 + 2u)ms - worker takes 3rd message
+		// (4000 + 3u)ms - worker ends with 3rd message
+		// 6000ms - 4th message
+		// (6000 + u)ms - worker takes 4th message
+		
+		// wrong:
+		// 0ms - 1st message
+		// (u)ms - worker takes 1st message (u is much less than 2000)
+		// 2000ms - 2nd message
+		// 4000ms - 3rd message
+		// (4000 + u)ms - worker ends with 1st message
+		// (4000 + 2u)ms - worker takes 2nd message
+		// (4000 + 3u)ms - worker ends with 2nd message
+		// (4000 + 4u)ms - worker starts with 3rd message
+		// (4000 + 5u)ms - worker ends with 3rd message
+		// (4000 + 6u)ms - worker starts with 4th message
+
 		var client = worque('amqp://localhost');
 		var counter = 0;
-		var start;
+		var start = new Date(), u;
 		client('scheduled').subscribe(function () {
 			counter += 1;
 			if (counter == 1) {
-				return Promise.delay(3000);
-			} else if (counter == 2) {
-				start = new Date();
-			} else if (counter == 3) {
+				u = new Date() - start;
+				return Promise.delay(4000);
+			} else if (counter == 4) {
 				var diff = new Date() - start;
-				if (diff < 1000) {
-					done(new Error('Called after ' + diff + 'ms => earlier than 1000 ms => there were several messages in a queue'));
+				if (diff <= 6000 + u) {
+					done(new Error('4th message received earlier than (3000 + u)ms'));
 				} else {
 					done();
 				}
 			}
-		}).schedule('*:*:*');
+		}).schedule('*:*:*/2');
 	});
 	it('should requeue failed messages', function (done) {
 		var client = worque('amqp://localhost');
