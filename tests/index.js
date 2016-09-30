@@ -77,4 +77,31 @@ describe('worque', function () {
 			}
 		}).schedule('*:*:*');
 	});
+	it('should requeue failed messages', function (done) {
+		var client = worque('amqp://localhost');
+		var counter = 0;
+		client('task').subscribe(function (message) {
+			return Promise.delay(1000).then(function () {
+				if (++counter == 1) {
+					throw new Error('failure first');
+				} else if (counter == 2 && message != 2) {
+					done(new Error('failed should be readded to the end, not the begin of queue'))
+				} else if (counter == 3) {
+					done();
+				}
+			});
+		}, { requeue: true }).publish(1).publish(2);
+	});
+	it('should not requeue failed messages if not asked explicitly', function (done) {
+		var client = worque('amqp://localhost');
+		var counter = 0;
+		client('task').subscribe(function (message) {
+			if (++counter != message) {
+				done(new Error('order is broken'));
+			}
+			if (counter == 2) {
+				done();
+			}
+		}).publish(1).publish(2);
+	});
 });
