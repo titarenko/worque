@@ -55,11 +55,6 @@ Queue.prototype.publish = function (content, context, options) {
 };
 
 Queue.prototype.subscribe = function (handler, options) {
-	var requeue = options && options.requeue;
-	if (requeue != null) {
-		// this is not native #consume option, so it must not be passed further
-		delete options.requeue;
-	}
 	return this._exec(function (channel) {
 		var self = this;
 		return channel.consume(this._name, onMessage, options);
@@ -77,14 +72,10 @@ Queue.prototype.subscribe = function (handler, options) {
 				return handler.call(data.context, data.content);
 			}).tap(function (result) {
 				self.emit('result', _.extend({ result: result }, data));
-				return channel.ack(message);
 			}).catch(function (error) {
 				self.emit('failure', _.extend({ error: error }, data));
-				if (requeue) {
-					return channel.nack(message, false, requeue);
-				} else {
-					return channel.ack(message);
-				}
+			}).finally(function () {
+				channel.ack(message);
 			});
 		}
 	});

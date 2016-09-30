@@ -48,12 +48,7 @@ client('logthis').publish({ something: 42 });
 // setup scheduled task
 client('recurrent task runs each minute').subscribe(function () {
 	console.log('I run each minute');
-}, { requeue: true }).schedule('0 * * * * *');
-// note { requeue: true } above - this means if exception occurs, 
-// nack will be sent instead of ack,
-// and task will be taken from begin and added to the end of queue
-// also please pay attention
-// this parameter is a parameter of subscribe method and is not related to scheduling itself
+}).schedule('0 * * * * *');
 
 // will be retried (republished) 1 second after 1st failure
 // 2 seconds after 2nd failure
