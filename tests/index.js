@@ -7,17 +7,17 @@ describe('worque', function () {
 	it('should work', function (done) {
 		var client = worque('amqp://localhost');
 		client.on('error', done);
-		client('q1').subscribe(function (p) {
+		client('should work').subscribe(function (p) {
 			p.should.eql(1);
 			done();
 		}).promise.catch(done);
-		client('q1').publish(1).promise.catch(done);
+		client('should work').publish(1).promise.catch(done);
 	});
 	it('should support scheduling', function (done) {
 		var client = worque('amqp://localhost');
 		var count = 0;
 		client.on('error', done);
-		client('recurrent').subscribe(function () {
+		client('should support scheduling').subscribe(function () {
 			if (!count++) {
 				done();
 			}
@@ -27,7 +27,7 @@ describe('worque', function () {
 		var client = worque('amqp://localhost');
 		var count = 0;
 		client.on('error', done);
-		client('recurrent').subscribe(function () {
+		client('should support scheduling using simplified format').subscribe(function () {
 			if (!count++) {
 				done();
 			}
@@ -36,19 +36,19 @@ describe('worque', function () {
 	it('should support retrying', function (done) {
 		var client = worque('amqp://localhost');
 		var count = 0;
-		client('somewhat failing').subscribe(function (params) {
+		client('should support retrying').subscribe(function (params) {
 			if (count++ < 3) {
 				throw new Error('try more');
 			}
 			params.should.eql({ a: 'b' });
 			done();
 		}).retry(1, 2, 3).catch(done);
-		client('somewhat failing').publish({ a: 'b' }).catch(done);
+		client('should support retrying').publish({ a: 'b' }).catch(done);
 	});
 	it('should support closing connection', function (done) {
 		var client = worque('amqp://localhost');
 		client.close().then(function () {
-			return client('any queue').publish('any message');
+			return client('should support closing connection').publish('any message');
 		}).catch(function (e) {
 			if (e.message == 'Channel ended, no reply will be forthcoming') {
 				done();
@@ -84,7 +84,7 @@ describe('worque', function () {
 		var client = worque('amqp://localhost');
 		var counter = 0;
 		var start = new Date(), u;
-		client('scheduled').subscribe(function () {
+		client('should remove expired scheduled messages').subscribe(function () {
 			counter += 1;
 			if (counter == 1) {
 				u = new Date() - start;
