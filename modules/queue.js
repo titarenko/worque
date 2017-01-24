@@ -105,7 +105,10 @@ Queue.prototype.schedule = function (cronTime) {
 
 Queue.prototype.retry = function (getTtl) {
 	if (!_.isFunction(getTtl)) {
-		getTtl = buildGetTtl(_.isArray(getTtl) ? getTtl : _.slice(arguments));
+		var timings = _.isArray(getTtl) ? getTtl : _.slice(arguments)
+		getTtl = buildGetTtl(timings.map(function (it) {
+			return it/(process.env.TIME_DENOM || 1);
+		}));
 	}
 
 	return this._exec(function (channel) {
