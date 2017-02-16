@@ -47,7 +47,7 @@ Queue.prototype.bind = function (source, pattern, options) {
 };
 
 Queue.prototype.publish = function (content, context, options) {
-	var data = { context: context, content: content };
+	var data = { context: context, content: content, failures: 0 };
 	var rawContent = new Buffer(JSON.stringify(data));
 	return this._exec(function (channel) {
 		return channel.sendToQueue(this._name, rawContent, options || { persistent: true });
@@ -64,11 +64,11 @@ Queue.prototype.subscribe = function (handler, options) {
 			try {
 				data = JSON.parse(rawContent.toString());
 			} catch (e) {
-				self.emit('failure', { error: error });
+				self.emit('failure', { error: error, name: self._name });
 				channel.ack(message);
 			}
 			self.emit('task', _.extend(data, { name: self._name }));
-			return Promise.resolve().then(function () {
+			return Promise.try(function () {
 				return handler.call(data.context, data.content);
 			}).tap(function (result) {
 				self.emit('result', _.extend({ result: result }, data));
@@ -112,12 +112,9 @@ Queue.prototype.retry = function (getTtl) {
 	}
 
 	return this._exec(function (channel) {
-		var errorCounter = 0, bufferQueue = this._bufferQueue;
-		this.on('result', function (ev) {
-			errorCounter = 0;
-		});
+		var bufferQueue = this._bufferQueue;
 		this.on('failure', function (ev) {
-			var ttl = getTtl(errorCounter++);
+			var ttl = getTtl(ev.failures++);
 			if (!ttl) {
 				return;
 			}

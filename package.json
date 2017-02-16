@@ -1,6 +1,6 @@
 {
   "name": "worque",
-  "version": "0.10.6",
+  "version": "0.11.0",
   "description": "AMQP-based work queue",
   "main": "index.js",
   "scripts": {

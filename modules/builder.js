@@ -74,7 +74,7 @@ function createRetryBuffer (channel) {
 			if (--data.ttl) {
 				channel.sendToQueue('worque-buffer', new Buffer(JSON.stringify(data)), { persistent: true });
 			} else {
-				channel.sendToQueue(data.name, new Buffer(JSON.stringify(_.pick(data, ['context', 'content']))), { persistent: true });
+				channel.sendToQueue(data.name, new Buffer(JSON.stringify(_.pick(data, ['context', 'content', 'failures']))), { persistent: true });
 			}
 			channel.ack(message);
 		});
