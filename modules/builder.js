@@ -71,7 +71,7 @@ function createRetryBuffer (channel) {
 	}).then(function () {
 		return channel.consume('worque-retry', function (message) {
 			var data = JSON.parse(message.content.toString());
-			if (--data.ttl) {
+			if (--data.ttl > 0) {
 				channel.sendToQueue('worque-buffer', new Buffer(JSON.stringify(data)), { persistent: true });
 			} else {
 				channel.sendToQueue(data.name, new Buffer(JSON.stringify(_.pick(data, ['context', 'content', 'failures']))), { persistent: true });
