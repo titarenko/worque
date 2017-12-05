@@ -63,7 +63,7 @@ Queue.prototype.subscribe = function (handler, options) {
 			var data;
 			try {
 				data = JSON.parse(rawContent.toString());
-			} catch (e) {
+			} catch (error) {
 				self.emit('failure', { error: error, name: self._name });
 				channel.ack(message);
 			}
